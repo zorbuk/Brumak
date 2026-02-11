@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Brumak-Auth/Brumak-Auth.csproj" />
+  <Project Path="Brumak-Client/Brumak-Client.csproj" />
+  <Project Path="Brumak-Shared/Brumak-Shared.csproj" />
+  <Project Path="Brumak-World/Brumak-World.csproj" />
+</Solution>
