@@ -14,6 +14,9 @@
 **/.obsidian/**
 **/.trash/**
 
+# Files
+migrations.txt
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

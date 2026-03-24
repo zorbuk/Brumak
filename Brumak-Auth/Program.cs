@@ -1,4 +1,5 @@
-﻿using Brumak_Shared.Metrics;
+﻿using Brumak_ORM;
+using Brumak_Shared.Metrics;
 
 public class Program
 {
@@ -6,6 +7,8 @@ public class Program
 
     public static void Main()
     {
-
+        _logger.Log("Building DbContext...");
+        Services.BuildServiceProvider(typeof(Brumak_ORM.Database.AuthDbContext));
+        _logger.Log("Starting Auth server...");
     }
 }
