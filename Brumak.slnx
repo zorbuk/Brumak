@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Elementos de la solución/">
+    <File Path="readme.md" />
+  </Folder>
   <Project Path="Brumak-Auth/Brumak-Auth.csproj" />
   <Project Path="Brumak-Client/Brumak-Client.csproj" />
   <Project Path="Brumak-Shared/Brumak-Shared.csproj" />
