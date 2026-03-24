@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Bienvenido.md",
+                "file": "Client/Client.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Bienvenido"
+              "title": "Client"
             }
           }
         ]
@@ -69,7 +69,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "",
+                "query": "tag:#GameFlow",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -110,6 +110,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Brumak.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +120,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Enlaces entrantes"
+              "title": "Enlaces entrantes de Brumak"
             }
           },
           {
@@ -128,11 +129,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "Brumak.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Enlaces salientes"
+              "title": "Enlaces salientes de Brumak"
             }
           },
           {
@@ -156,12 +158,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "Brumak.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Esquema"
+              "title": "Esquema de Brumak"
             }
           }
         ]
@@ -173,6 +176,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "bases:Crear nueva base": false,
       "switcher:Abrir selector rápido": false,
       "graph:Abrir vista gráfica": false,
       "canvas:Crear nuevo lienzo": false,
@@ -181,8 +185,24 @@
       "command-palette:Abrir paleta de comandos": false
     }
   },
-  "active": "d1d18f64cbda5f32",
+  "active": "97afc810f70ed8fa",
   "lastOpenFiles": [
-    "Bienvenido.md"
+    "Nuevo Documento de texto.txt",
+    "Brumak.md",
+    "World Server/World Server.md",
+    "World Server/Cola de World.md",
+    "Shared/Shared.md",
+    "Client/Client.md",
+    "Auth Server/Servidores.md",
+    "Auth Server/Premium.md",
+    "Auth Server/Cuenta.md",
+    "Auth Server/Conexión.md",
+    "Auth Server/Cola de Auth.md",
+    "Auth Server/Auth Server.md",
+    "World Server",
+    "Shared",
+    "Client",
+    "Auth Server",
+    "cree un enlace.md"
   ]
 }
