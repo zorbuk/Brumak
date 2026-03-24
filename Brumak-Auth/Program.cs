@@ -1,2 +1,11 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using Brumak_Shared.Metrics;
+
+public class Program
+{
+    private static readonly Logger _logger = new("Auth", typeof(Program));
+
+    public static void Main()
+    {
+
+    }
+}
