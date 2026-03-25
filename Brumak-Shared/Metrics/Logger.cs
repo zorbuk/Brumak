@@ -18,7 +18,7 @@ namespace Brumak_Shared.Metrics
             lock (this._lockObject)
             {
                 using var writter = File.AppendText($"./{LogType}.log");
-                string strMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ({LoggedClassName}) {message}";
+                string strMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ({LoggedClassName})\n{message}\n";
                 Console.WriteLine(strMessage);
                 writter.WriteLine(strMessage);
             }

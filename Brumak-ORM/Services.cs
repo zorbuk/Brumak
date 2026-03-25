@@ -9,17 +9,16 @@ namespace Brumak_ORM
     public class Services
     {
         public static IServiceProvider ServiceProvider { get; private set; } = null!;
+        public static IConfiguration Configuration { get; private set; } = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("db_settings.json")
+                .Build();
 
         public static void BuildServiceProvider(Type dbContext)
         {
             var services = new ServiceCollection();
 
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("db_settings.json")
-                .Build();
-
-            string connectionString = configuration.GetConnectionString("BrumakDb")
+            string connectionString = Configuration.GetConnectionString("BrumakDb")
                 ?? throw Exceptions.New("Connection string 'BrumakDb' not found in configuration");
 
             var serverVersion = ServerVersion.AutoDetect(connectionString);
@@ -66,7 +65,8 @@ namespace Brumak_ORM
                     .Select(t => t.GetTableName())
                     .ToList();
 
-                Console.WriteLine($"Db: {string.Join(", ", tables)}");
+                if (tables.Count > 0)
+                    Console.WriteLine($"Db tables: {string.Join(", ", tables)}");
             });
         }
     }
