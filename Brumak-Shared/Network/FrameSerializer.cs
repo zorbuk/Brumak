@@ -1,4 +1,5 @@
 ﻿using Brumak_Shared.Metrics;
+using Brumak_Shared.Network.Frames;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Brumak_Shared.Network
 {
     public static class FrameSerializer
     {
-        private static readonly Logger _logger = new("Shared", typeof(FrameSerializer));
+        private static readonly Logger _logger = new("Shared", typeof(FrameSerializer), showLogs: false, saveLogs: true);
 
         private static readonly JsonSerializerOptions Options = new()
         {
@@ -39,6 +40,7 @@ namespace Brumak_Shared.Network
 
                 return typeValue switch
                 {
+                    FrameType.Heartbeat => JsonSerializer.Deserialize<HeartbeatFrame>(json, Options),
                     _ => null
                 };
             }

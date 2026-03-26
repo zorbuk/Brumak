@@ -9,4 +9,27 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Assets\Login\SplashArt.jpg" />
+    <None Remove="Assets\Ui\Pointer.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Game\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="10.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Brumak-ORM\Brumak-ORM.csproj" />
+    <ProjectReference Include="..\Brumak-Shared\Brumak-Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Login\SplashArt.jpg" />
+    <Resource Include="Assets\Ui\Pointer.png" />
+  </ItemGroup>
+
 </Project>

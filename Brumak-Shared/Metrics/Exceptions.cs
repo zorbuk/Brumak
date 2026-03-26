@@ -8,7 +8,7 @@ namespace Brumak_Shared.Metrics
 {
     public class Exceptions
     {
-        private static readonly Logger _logger = new("Metrics", typeof(Exceptions));
+        private static readonly Logger _logger = new("Metrics", typeof(Exceptions), false, true);
 
         public static Exception New(string message)
         {

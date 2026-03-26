@@ -13,7 +13,7 @@ namespace Brumak_Auth.Network
 {
     public class AuthTcpServerProvider
     {
-        private static readonly Logger _logger = new("Auth", typeof(AuthTcpServerProvider));
+        private static readonly Logger _logger = new("Auth", typeof(AuthTcpServerProvider), Program.ShowLogs, Program.SaveLogs);
         public TcpListener Listener { get; private set; } = null!;
         public bool Running { get; private set; } = false;
 

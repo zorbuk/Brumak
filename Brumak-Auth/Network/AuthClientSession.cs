@@ -1,18 +1,16 @@
-﻿using Brumak_Shared.Metrics;
+﻿using Brumak_ORM;
+using Brumak_Shared.Metrics;
 using Brumak_Shared.Network;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Brumak_Auth.Network
 {
     public class AuthClientSession(TcpClient client, AuthTcpServerProvider server)
     {
-        private Logger _logger = new("Auth", typeof(AuthClientSession));
+        private Logger _logger = new("Auth", typeof(AuthClientSession), Program.ShowLogs, Program.SaveLogs);
+
         public TcpClient Client { get; private set; } = client;
         public AuthTcpServerProvider Server { get; private set; } = server;
 

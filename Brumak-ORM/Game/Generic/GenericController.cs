@@ -14,7 +14,7 @@ namespace Brumak_ORM.Game.Generic
     where TEntity : class
     where TContext : DbContext
     {
-        private readonly Logger _logger = new("ORM", typeof(GenericController<TEntity, TContext>));
+        private readonly Logger _logger = new("ORM", typeof(GenericController<TEntity, TContext>), showLogs: false, saveLogs: true);
         private readonly IServiceProvider _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
         public virtual bool Create(TEntity entity)

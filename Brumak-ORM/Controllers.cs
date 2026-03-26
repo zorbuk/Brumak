@@ -13,7 +13,7 @@ namespace Brumak_ORM
 {
     public class Controllers
     {
-        private static readonly Logger _logger = new("ORM", typeof(Controllers));
+        private static readonly Logger _logger = new("ORM", typeof(Controllers), showLogs: false, saveLogs: true);
         private static readonly ConcurrentDictionary<Type, IGenericController> _controllers = new();
 
         public static void Register(IGenericController controller)

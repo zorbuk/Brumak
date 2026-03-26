@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Brumak_Shared.Metrics
 {
-    public class Logger(string logType, object loggedClass)
+    public class Logger(string logType, object loggedClass, bool showLogs, bool saveLogs)
     {
         private string LoggedClassName { get; set; } = loggedClass.ToString() ?? "undefined";
         private string LogType { get; set; } = logType;
@@ -19,7 +19,11 @@ namespace Brumak_Shared.Metrics
             {
                 using var writter = File.AppendText($"./{LogType}.log");
                 string strMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ({LoggedClassName})\n{message}\n";
+
+                if(showLogs)
                 Console.WriteLine(strMessage);
+
+                if(saveLogs)
                 writter.WriteLine(strMessage);
             }
         }

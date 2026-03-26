@@ -1,4 +1,5 @@
-﻿using Brumak_Shared.Metrics;
+﻿using Brumak_Auth.Network.Frames;
+using Brumak_Shared.Metrics;
 using Brumak_Shared.Network;
 using Brumak_Shared.Network.Frames;
 using System;
@@ -11,12 +12,12 @@ namespace Brumak_Auth.Network
 {
     public static class AuthServerFrameDispatcher
     {
-        private static readonly Logger _logger = new("Auth", typeof(AuthServerFrameDispatcher));
+        private static readonly Logger _logger = new("Auth", typeof(AuthServerFrameDispatcher), Program.ShowLogs, Program.SaveLogs);
         private static readonly Dictionary<string, IFrameHandler<INetworkFrame>> handlers = [];
 
         static AuthServerFrameDispatcher()
         {
-
+            Register<HeartbeatFrame>(new HeartbeatFrameHandler());
         }
 
         public static void Register<T>(IFrameHandler<T> handler) where T : INetworkFrame
