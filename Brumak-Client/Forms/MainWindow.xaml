@@ -6,120 +6,15 @@
         WindowStyle="None"
         ResizeMode="NoResize"
         Background="#111"
+        xmlns:Legal="clr-namespace:Brumak_Client.Forms.Legal"
         MouseDown="Window_MouseDown">
 
     <Window.Resources>
-        <Style x:Key="TextBox" TargetType="TextBox">
-            <Setter Property="Height" Value="45"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="#EAEAEA"/>
-            <Setter Property="BorderThickness" Value="0"/>
-        </Style>
-
-        <Style x:Key="PasswordBox" TargetType="PasswordBox">
-            <Setter Property="Height" Value="45"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="#EAEAEA"/>
-            <Setter Property="BorderThickness" Value="0"/>
-        </Style>
-
-        <Style x:Key="PrimaryButton" TargetType="Button">
-            <Setter Property="Height" Value="45"/>
-            <Setter Property="Background" Value="#D13639"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border"
-                                Background="{TemplateBinding Background}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"
-                                              RecognizesAccessKey="True"/>
-                        </Border>
-
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#D41111"/>
-                            </Trigger>
-
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#B20E0E"/>
-                            </Trigger>
-
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="border" Property="Background" Value="#CCCCCC"/>
-                                <Setter Property="Foreground" Value="#888888"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="TabActive" TargetType="Button">
-            <Setter Property="Foreground" Value="#111"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="#EAEAEA"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="Margin" Value="0,0,10,0"/>
-        </Style>
-
-        <Style x:Key="TabInactive" TargetType="Button">
-            <Setter Property="Foreground" Value="#888"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="Margin" Value="0,0,10,0"/>
-        </Style>
-
-        <Style x:Key="WindowButton" TargetType="Button">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border"
-                    Background="{TemplateBinding Background}"
-                    BorderThickness="{TemplateBinding BorderThickness}"
-                    CornerRadius="4"
-                    SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"
-                                  RecognizesAccessKey="True"/>
-                        </Border>
-
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#D41111"/>
-                            </Trigger>
-
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#B20E0E"/>
-                            </Trigger>
-
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="border" Property="Background" Value="#CCCCCC"/>
-                                <Setter Property="Foreground" Value="#888888"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Forms/Style/MainStyle.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
 
     <Grid>
@@ -169,44 +64,79 @@
                     <StackPanel x:Name="LoginPanel">
 
                         <TextBlock Text="NOMBRE DE USUARIO" FontSize="11" Foreground="#666"/>
-                        <TextBox Style="{StaticResource TextBox}"/>
+                        <TextBox 
+                            x:Name="LAUsername" 
+                            MaxLength="16"
+                            Style="{StaticResource TextBox}"/>
 
                         <TextBlock Text="CONTRASEÑA" FontSize="11" Foreground="#666" Margin="0,15,0,0"/>
-                        <PasswordBox Style="{StaticResource PasswordBox}"/>
+                        <PasswordBox 
+                            x:Name="LAPassword" 
+                            MaxLength="20"
+                            Style="{StaticResource PasswordBox}"/>
 
-                        <CheckBox Content="Mantener sesión iniciada"
+                        <CheckBox x:Name="LAKeepSessionCb" Content="Mantener sesión iniciada"
+                                  Foreground="#666"
                                   FontSize="12"
                                   Margin="0,10"/>
 
                         <Button Content="Iniciar sesión"
+                                Click="LoginAccount_Click"
                                 Style="{StaticResource PrimaryButton}"
                                 Margin="0,10"/>
 
-                        <TextBlock Text="¿No puedes iniciar sesión?"
-                                   Foreground="#666"
-                                   FontSize="12"
-                                   Margin="0,20,0,0"
-                                   Cursor="Hand"/>
+                        <TextBlock x:Name="LAAccountLoginResult"
+                            Visibility="Hidden"
+                            Text="(...)" FontSize="11" Foreground="#666"/>
+
+                        <TextBlock Margin="0,15,0,0">
+                            <Hyperlink>¿No puedes iniciar sesión?</Hyperlink>
+                        </TextBlock>
 
                     </StackPanel>
-
                     <StackPanel x:Name="RegisterPanel" Visibility="Collapsed">
 
-                        <TextBlock Text="USUARIO" FontSize="11" Foreground="#666"/>
-                        <TextBox Style="{StaticResource TextBox}"/>
+                        <TextBlock Text="NOMBRE DE USUARIO" FontSize="11" Foreground="#666"/>
+                        <TextBox 
+                            x:Name="CAUsername" 
+                            MaxLength="16"
+                            Style="{StaticResource TextBox}"/>
+
+                        <TextBlock Text="APODO (VISIBLE A LOS DEMÁS)" FontSize="11" Foreground="#666" Margin="0,15,0,0"/>
+                        <TextBox 
+                            x:Name="CANickname" 
+                            MaxLength="16"
+                            Style="{StaticResource TextBox}"/>
 
                         <TextBlock Text="EMAIL" FontSize="11" Foreground="#666" Margin="0,15,0,0"/>
-                        <TextBox Style="{StaticResource TextBox}"/>
+                        <TextBox 
+                            x:Name="CAEmail" 
+                            MaxLength="100"
+                            Style="{StaticResource TextBox}"/>
 
                         <TextBlock Text="CONTRASEÑA" FontSize="11" Foreground="#666" Margin="0,15,0,0"/>
-                        <PasswordBox Style="{StaticResource PasswordBox}"/>
+                        <PasswordBox 
+                            x:Name="CAPassword" 
+                            MaxLength="20"
+                            Style="{StaticResource PasswordBox}"/>
+
+                        <CheckBox
+                          x:Name="CATermsAndConditionsCb"
+                          FontSize="12"
+                          Margin="0,10">
+                            <Hyperlink Click="ShowTermsAndConditions">He leído y acepto los términos y condiciones</Hyperlink>
+                        </CheckBox>
 
                         <Button Content="Crear cuenta"
                                 Style="{StaticResource PrimaryButton}"
+                                Click="CreateAccount_Click"
                                 Margin="0,20"/>
 
-                    </StackPanel>
+                        <TextBlock x:Name="CAAccountCreationResultTb"
+                            Visibility="Hidden"
+                            Text="(...)" FontSize="11" Foreground="#666"/>
 
+                    </StackPanel>
                 </Grid>
 
             </StackPanel>
@@ -228,9 +158,13 @@
                         FontSize="12" 
                         Foreground="White" 
                         Margin="8,0,0,0"
-                        VerticalAlignment="Center"/>    
+                        VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
+            <Legal:MainTermsAndConditions
+                x:Name="TermsUserControl" 
+                Visibility="Collapsed" 
+                Panel.ZIndex="1"/>
             <StackPanel Panel.ZIndex="1"
                         Orientation="Horizontal"
                         HorizontalAlignment="Right"
@@ -250,6 +184,5 @@
                 VerticalAlignment="Center" />
             <Rectangle Fill="#66000000"/>
         </Grid>
-
     </Grid>
 </Window>

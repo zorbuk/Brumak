@@ -4,6 +4,7 @@ using Brumak_Shared.Metrics;
 using Microsoft.Extensions.Configuration;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 
@@ -115,7 +116,7 @@ namespace Brumak_Client.Forms
                                 PingLabel.Text = "En estos momentos el servidor está sin conexión, reconectando (...)";
                                 StatusEllipse.Fill = System.Windows.Media.Brushes.Red;
                             }
-                            if (reconnect) 
+                            if (reconnect)
                                 InitializeAuthNetworkAsync();
                         });
                     };
@@ -182,6 +183,105 @@ namespace Brumak_Client.Forms
             }
         }
 
+        #region "Helpers"
+        private void CloseTermsAndConditionsIfOpened()
+        {
+            if (TermsUserControl.Visibility == Visibility.Visible) 
+                TermsUserControl.Visibility = Visibility.Hidden;
+        }
+        #endregion
+        #region "Validations"
+        private static bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return false;
+
+            string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            return Regex.IsMatch(email, pattern);
+        }
+
+        private bool ValidateLoginAccount()
+        {
+            LAAccountLoginResult.Visibility = Visibility.Hidden;
+            LAAccountLoginResult.Text = "";
+
+            List<string> errors = [];
+
+            string? username = LAUsername.Text?.Trim();
+            string password = LAPassword.Password;
+
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                errors.Add("El usuario o email es obligatorio.");
+                LAUsername.BorderBrush = System.Windows.Media.Brushes.Red;
+            }
+            else
+            {
+                LAUsername.ClearValue(BorderBrushProperty);
+            }
+
+            // PASSWORD
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                errors.Add("La contraseña es obligatoria.");
+                LAPassword.BorderBrush = System.Windows.Media.Brushes.Red;
+            }
+            else
+            {
+                LAPassword.ClearValue(BorderBrushProperty);
+            }
+
+            // Mostrar errores
+            if (errors.Count > 0)
+            {
+                LAAccountLoginResult.Text = string.Join("\n", errors);
+                LAAccountLoginResult.Visibility = Visibility.Visible;
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool ValidateCreateAccount()
+        {
+            CAAccountCreationResultTb.Visibility = Visibility.Hidden;
+            CAAccountCreationResultTb.Text = "";
+
+            List<string> errors = [];
+
+            if (string.IsNullOrWhiteSpace(CAEmail.Text))
+                errors.Add("El email es obligatorio.");
+            else if (CAEmail.Text.Length < 4 || !IsValidEmail(CAEmail.Text))
+                errors.Add("El email no es válido.");
+
+            if (string.IsNullOrWhiteSpace(CAUsername.Text))
+                errors.Add("El usuario es obligatorio.");
+            else if (CAUsername.Text.Length < 4)
+                errors.Add("El usuario debe tener al menos 4 caracteres.");
+
+            if (string.IsNullOrWhiteSpace(CAPassword.Password))
+                errors.Add("La contraseña es obligatoria.");
+            else if (CAPassword.Password.Length < 4)
+                errors.Add("La contraseña debe tener al menos 4 caracteres.");
+
+            if (string.IsNullOrWhiteSpace(CANickname.Text))
+                errors.Add("El apodo es obligatorio.");
+            else if (CANickname.Text.Length < 4)
+                errors.Add("El apodo debe tener al menos 4 caracteres.");
+
+            if (CATermsAndConditionsCb.IsChecked != true)
+                errors.Add("Debes aceptar los términos y condiciones.");
+
+            if (errors.Count > 0)
+            {
+                CAAccountCreationResultTb.Text = string.Join("\n", errors);
+                CAAccountCreationResultTb.Visibility = Visibility.Visible;
+                return false;
+            }
+
+            return true;
+        }
+        #endregion
         #region "Window Events"
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -207,6 +307,11 @@ namespace Brumak_Client.Forms
             BtnRegister.Style = (Style)FindResource("TabActive");
         }
 
+        private void ShowTermsAndConditions(object sender, RoutedEventArgs e)
+        {
+            TermsUserControl.Visibility = Visibility.Visible;
+        }
+
         private void Minimize_Click(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
@@ -217,6 +322,25 @@ namespace Brumak_Client.Forms
             Close();
         }
 
+        private void CreateAccount_Click(object sender, RoutedEventArgs e)
+        {
+            bool canCreateAccount = ValidateCreateAccount();
+            if (!canCreateAccount) return;
+
+            CloseTermsAndConditionsIfOpened();
+
+            NetworkManager.AuthClientManager.Send(null!);
+        }
+
+        private void LoginAccount_Click(object sender, RoutedEventArgs e)
+        {
+            bool canLoginAccount = ValidateLoginAccount();
+            if (!canLoginAccount) return;
+
+            CloseTermsAndConditionsIfOpened();
+
+            NetworkManager.AuthClientManager.Send(null!);
+        }
 
         #endregion
     }

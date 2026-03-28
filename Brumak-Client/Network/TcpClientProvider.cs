@@ -153,6 +153,8 @@ namespace Brumak_Client.Network
 
         public void Send(INetworkFrame frame)
         {
+            if (frame == null!) return;
+
             if (!Connected)
             {
                 _logger.Log($"Frame ({frame.Type}) can't be sent because there is no connection with the server");
