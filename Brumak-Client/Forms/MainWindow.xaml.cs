@@ -213,25 +213,21 @@ namespace Brumak_Client.Forms
             if (string.IsNullOrWhiteSpace(username))
             {
                 errors.Add("El usuario o email es obligatorio.");
-                LAUsername.BorderBrush = System.Windows.Media.Brushes.Red;
             }
             else
             {
                 LAUsername.ClearValue(BorderBrushProperty);
             }
 
-            // PASSWORD
             if (string.IsNullOrWhiteSpace(password))
             {
                 errors.Add("La contraseña es obligatoria.");
-                LAPassword.BorderBrush = System.Windows.Media.Brushes.Red;
             }
             else
             {
                 LAPassword.ClearValue(BorderBrushProperty);
             }
 
-            // Mostrar errores
             if (errors.Count > 0)
             {
                 LAAccountLoginResult.Text = string.Join("\n", errors);

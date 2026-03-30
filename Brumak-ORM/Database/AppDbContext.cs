@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Brumak_Shared.Account.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace Brumak_ORM.Database
 {

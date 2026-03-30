@@ -15,10 +15,11 @@ namespace Brumak_Shared.Account.Model
         public required string Email { get; set; }
         public required string PasswordHash { get; set; }
 
-        public required int PremiumExpirationDate { get; set; }
+        public required DateTime PremiumExpirationDate { get; set; }
+        public bool IsPremium => PremiumExpirationDate > DateTime.UtcNow;
 
         public required string RegisteredIp { get; set; }
-        public required string LastIp { get; set; }
+        public required string? LastIp { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

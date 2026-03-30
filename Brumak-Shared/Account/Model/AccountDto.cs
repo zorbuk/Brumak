@@ -13,9 +13,9 @@ namespace Brumak_Shared.Account.Model
         public string Username { get; private set; } = account.Username;
         public string Nickname { get; private set; } = account.Nickname;
 
-        public int PremiumExpirationDate { get; private set; } = account.PremiumExpirationDate;
+        public DateTime PremiumExpirationDate { get; private set; } = account.PremiumExpirationDate;
 
-        public string LastIp { get; private set; } = account.LastIp;
+        public string? LastIp { get; private set; } = account.LastIp;
 
         public DateTime CreatedAt { get; private set; } = account.CreatedAt;
     }
