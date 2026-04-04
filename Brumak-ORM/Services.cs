@@ -1,32 +1,33 @@
-﻿using Brumak_ORM.Database;
-using Brumak_Shared.Metrics;
+﻿using Brumak_Shared.Metrics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace Brumak_ORM
 {
     public class Services
     {
+        private static readonly Logger _logger = new("ORM", typeof(Services), showLogs: true, saveLogs: false);
         public static IServiceProvider ServiceProvider { get; private set; } = null!;
         public static IConfiguration Configuration { get; private set; } = new ConfigurationBuilder()
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                 .AddJsonFile("db_settings.json")
                 .Build();
 
-        public static void BuildServiceProvider(Type dbContext)
+        public static void BuildServiceProvider(params Type[] dbContextTypes)
         {
             var services = new ServiceCollection();
 
-            string connectionString = Configuration.GetConnectionString("BrumakDb")
-                ?? throw Exceptions.New("Connection string 'BrumakDb' not found in configuration");
-
-            var serverVersion = ServerVersion.AutoDetect(connectionString);
-
-            var dbContextTypes = new[] { dbContext };
-
             foreach (var contextType in dbContextTypes)
             {
+                var csKey = contextType.Name.Replace("DbContext", "Db");
+                var connectionString = Configuration.GetConnectionString(csKey)
+                                   ?? Configuration.GetConnectionString("BrumakDb")
+                                   ?? throw Exceptions.New($"No connection string found for {contextType.Name}");
+
+                var serverVersion = ServerVersion.AutoDetect(connectionString);
+
                 var addDbContextMethod = typeof(EntityFrameworkServiceCollectionExtensions)
                    .GetMethods()
                    .First(m => m.Name == nameof(EntityFrameworkServiceCollectionExtensions.AddDbContext) &&
@@ -37,9 +38,9 @@ namespace Brumak_ORM
                 addDbContextMethod.Invoke(null,
                 [
                     services,
-                    (Action<DbContextOptionsBuilder>)(options => options.UseMySql(connectionString, serverVersion)),
-                    ServiceLifetime.Scoped,
-                    ServiceLifetime.Scoped
+                (Action<DbContextOptionsBuilder>)(options => options.UseMySql(connectionString, serverVersion)),
+                ServiceLifetime.Scoped,
+                ServiceLifetime.Scoped
                 ]);
             }
 
@@ -48,7 +49,7 @@ namespace Brumak_ORM
             foreach (var contextType in dbContextTypes)
             {
                 var initializeMethod = typeof(Services)
-                    .GetMethod(nameof(InitializeDatabase), System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
+                    .GetMethod(nameof(InitializeDatabase), BindingFlags.Static | BindingFlags.NonPublic)!
                     .MakeGenericMethod(contextType);
 
                 initializeMethod.Invoke(null, null);
@@ -57,17 +58,16 @@ namespace Brumak_ORM
 
         private static void InitializeDatabase<T>() where T : DbContext
         {
-            DbContextExecutor.Execute<T>((context) =>
-            {
-                context.Database.Migrate();
+            using var scope = ServiceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<T>();
+            context.Database.Migrate();
 
-                var tables = context.Model.GetEntityTypes()
-                    .Select(t => t.GetTableName())
-                    .ToList();
+            var tables = context.Model.GetEntityTypes()
+                .Select(t => t.GetTableName())
+                .ToList();
 
-                if (tables.Count > 0)
-                    Console.WriteLine($"Db tables: {string.Join(", ", tables)}");
-            });
+            if (tables.Count > 0)
+                _logger.Log($"[{typeof(T).Name}] Tables: {string.Join(", ", tables)}");
         }
     }
 }

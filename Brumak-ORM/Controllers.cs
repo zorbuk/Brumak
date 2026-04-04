@@ -1,20 +1,23 @@
-﻿using Brumak_ORM.Game.Generic;
+﻿using Brumak_ORM.Database;
+using Brumak_ORM.Game.Account.Controller;
+using Brumak_ORM.Game.Generic;
 using Brumak_Shared.Metrics;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Brumak_ORM
 {
     public class Controllers
     {
-        private static readonly Logger _logger = new("ORM", typeof(Controllers), showLogs: false, saveLogs: true);
+        private static readonly Logger _logger = new("ORM", typeof(Controllers), showLogs: true, saveLogs: false);
         private static readonly ConcurrentDictionary<Type, IGenericController> _controllers = new();
+
+        #region "Controllers"
+        public static AccountController? GetAccountController
+        {
+            get => Get<AccountController>();
+        }
+        #endregion
 
         public static void Register(IGenericController controller)
         {
@@ -32,26 +35,39 @@ namespace Brumak_ORM
 
         public static void RegisterAllControllers()
         {
-            var controllerDefinitions = new[]
-            {
-                // Placeholder
-                new { ControllerType = typeof(IGenericController), ContextType = typeof(DbContext) },
-            };
-
             var serviceProvider = Services.ServiceProvider;
 
-            foreach (var def in controllerDefinitions.Where(cd => cd.ControllerType != typeof(IGenericController)))
+            var definitions = new[]
             {
-                var context = serviceProvider.GetRequiredService(def.ContextType);
+                new { ControllerType = typeof(AccountController), ContextType = (Type?)typeof(AuthDbContext) },
+            };
 
-                var constructor = def.ControllerType.GetConstructor([def.ContextType, typeof(IServiceProvider)])
-                                  ?? throw new InvalidOperationException($"No suitable constructor found for {def.ControllerType}");
+            foreach (var def in definitions)
+            {
+                IGenericController controller;
 
-                var controller = constructor.Invoke([context, serviceProvider]) as IGenericController
+                if (def.ContextType is not null)
+                {
+                    var constructor = def.ControllerType.GetConstructor([def.ContextType, typeof(IServiceProvider)])
+                                      ?? throw new InvalidOperationException($"No constructor ({def.ContextType.Name}, IServiceProvider) found for {def.ControllerType}");
+
+                    using var scope = serviceProvider.CreateScope();
+                    var context = scope.ServiceProvider.GetRequiredService(def.ContextType);
+
+                    controller = constructor.Invoke([context, serviceProvider]) as IGenericController
                                  ?? throw new InvalidOperationException($"Failed to create {def.ControllerType}");
+                }
+                else
+                {
+                    var constructor = def.ControllerType.GetConstructor([typeof(IServiceProvider)])
+                                      ?? throw new InvalidOperationException($"No constructor (IServiceProvider) found for {def.ControllerType}");
+
+                    controller = constructor.Invoke([serviceProvider]) as IGenericController
+                                 ?? throw new InvalidOperationException($"Failed to create {def.ControllerType}");
+                }
 
                 _controllers[def.ControllerType] = controller;
-                _logger.Log($"Controller registered for type {def.ControllerType}");
+                _logger.Log($"Controller registered: {def.ControllerType.Name}");
             }
         }
 

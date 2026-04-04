@@ -9,12 +9,13 @@ using System.Threading.Tasks;
 
 namespace Brumak_ORM.Game.Generic
 {
-    public abstract class GenericController<TEntity, TContext>(IServiceProvider serviceProvider)
+    public abstract class GenericController<TEntity, TContext>(TContext context, IServiceProvider serviceProvider)
     : IGenericController<TEntity>
     where TEntity : class
     where TContext : DbContext
     {
-        private readonly Logger _logger = new("ORM", typeof(GenericController<TEntity, TContext>), showLogs: false, saveLogs: true);
+        private readonly TContext context = context;
+        private readonly Logger _logger = new("ORM", typeof(GenericController<TEntity, TContext>), showLogs: true, saveLogs: false);
         private readonly IServiceProvider _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
         public virtual bool Create(TEntity entity)

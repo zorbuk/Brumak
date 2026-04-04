@@ -1,4 +1,5 @@
 ﻿using Brumak_ORM;
+using Brumak_ORM.Database;
 using Brumak_Shared.Metrics;
 using Microsoft.Extensions.Configuration;
 
@@ -29,7 +30,7 @@ $$$$$$$  |$$ |      \$$$$$$  |$$ | $$ | $$ |\$$$$$$$ |$$ | \$$\
                                                                      ");
 
         _logger.Log("Building DbContext...");
-        Services.BuildServiceProvider(typeof(Brumak_ORM.Database.WorldDbContext));
+        Services.BuildServiceProvider(typeof(WorldDbContext));
         _logger.Log("Starting World server...");
     }
 }

@@ -1,12 +1,13 @@
-﻿using Brumak_ORM.Game.Generic;
+﻿using Brumak_ORM.Database;
+using Brumak_ORM.Game.Generic;
 using Brumak_Shared.Metrics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Brumak_ORM.Game.Account.Controller
 {
-    public class AccountController(IServiceProvider serviceProvider)
-        : GenericController<Brumak_Shared.Account.Model.Account, DbContext>(serviceProvider), IGenericController
+    public class AccountController(AuthDbContext context, IServiceProvider serviceProvider)
+        : GenericController<Brumak_Shared.Account.Model.Account, AuthDbContext>(context, serviceProvider), IGenericController
     {
         #region "Generic Controller Functions"
         public override bool Create(Brumak_Shared.Account.Model.Account account)
@@ -65,53 +66,6 @@ namespace Brumak_ORM.Game.Account.Controller
 
             account.LastIp = ip;
             return base.Update(account);
-        }
-        #endregion
-
-        #region "Controller ModelBuilder"
-        public EntityTypeBuilder<Brumak_Shared.Account.Model.Account> OnModelCreating(
-            EntityTypeBuilder<Brumak_Shared.Account.Model.Account> account)
-        {
-            account.HasKey(x => x.Id);
-            account.ToTable("Accounts");
-
-            account.Property(x => x.Username)
-               .IsRequired()
-               .HasMaxLength(32);
-
-            account.Property(x => x.Nickname)
-                .IsRequired()
-                .HasMaxLength(32);
-
-            account.Property(x => x.Email)
-                .IsRequired()
-                .HasMaxLength(254);
-
-            account.Property(x => x.PasswordHash)
-                .IsRequired()
-                .HasMaxLength(256);
-
-            account.Property(x => x.RegisteredIp)
-                .IsRequired()
-                .HasMaxLength(45);
-
-            account.Property(x => x.LastIp)
-                .IsRequired(false)
-                .HasMaxLength(45);
-
-            account.Property(x => x.PremiumExpirationDate)
-                .IsRequired()
-                .HasDefaultValueSql("GETUTCDATE()");
-
-            account.Property(x => x.CreatedAt)
-                .IsRequired()
-                .HasDefaultValueSql("GETUTCDATE()");
-
-            account.HasIndex(x => x.Username).IsUnique();
-            account.HasIndex(x => x.Nickname).IsUnique();
-            account.HasIndex(x => x.Email).IsUnique();
-
-            return account;
         }
         #endregion
     }

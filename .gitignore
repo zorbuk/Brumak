@@ -13,6 +13,8 @@
 # Docs
 **/.obsidian/**
 **/.trash/**
+**/Migrations/**
+**/db_settings.*
 
 # Files
 migrations.txt

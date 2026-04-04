@@ -1,5 +1,6 @@
 ﻿using Brumak_Auth.Network;
 using Brumak_ORM;
+using Brumak_ORM.Database;
 using Brumak_Shared.Metrics;
 using Microsoft.Extensions.Configuration;
 
@@ -29,12 +30,16 @@ $$$$$$$  |$$ |      \$$$$$$  |$$ | $$ | $$ |\$$$$$$$ |$$ | \$$\
                                                     AuthServer
                                                     github.com/zorbuk
                                                                      ");
+
         _logger.Log("Building DbContext (...)");
-        Services.BuildServiceProvider(typeof(Brumak_ORM.Database.AuthDbContext));
+        Services.BuildServiceProvider(typeof(AuthDbContext));
+
         _logger.Log("Registering all Controllers (...)");
         Controllers.RegisterAllControllers();
+
         _logger.Log("Starting AuthServer (...)");
         AuthServer.Start();
+
         Console.ReadLine();
     }
 }
