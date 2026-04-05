@@ -1,6 +1,7 @@
 ﻿using Brumak_Auth.Network;
 using Brumak_ORM;
 using Brumak_ORM.Database;
+using Brumak_ORM.Game.Generic.Cache;
 using Brumak_Shared.Metrics;
 using Microsoft.Extensions.Configuration;
 
@@ -36,6 +37,10 @@ $$$$$$$  |$$ |      \$$$$$$  |$$ | $$ | $$ |\$$$$$$$ |$$ | \$$\
 
         _logger.Log("Registering all Controllers (...)");
         Controllers.RegisterAllControllers();
+
+        _logger.Log("Starting CacheFlushService (...)");
+        var flushService = new CacheFlushService(interval: TimeSpan.FromSeconds(30));
+        flushService.Start();
 
         _logger.Log("Starting AuthServer (...)");
         AuthServer.Start();

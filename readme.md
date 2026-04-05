@@ -25,13 +25,13 @@ System.Drawings para el renderizado.
 **Brumak-Auth** : *db_settings.json*
 
     {
-	    "ConnectionStrings": {
-	      "BrumakDb": "connection string",
-		    "AuthServerPort": int,
-		    "AuthServerIp": "ip as string",
-		    "ShowLogs": bool,
-		    "SaveLogs": bool
-	    }
+      "ConnectionStrings": {
+        "AuthDb": "server=...;database=...;user=...;password=...",
+        "ShowLogs": "bool",
+        "SaveLogs": "bool",
+        "AuthServerIp": "ip as string",
+        "AuthServerPort": int
+      }
     }
 
 ## Creado por

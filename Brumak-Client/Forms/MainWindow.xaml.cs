@@ -1,6 +1,7 @@
 ﻿using Brumak_Client.Network;
 using Brumak_ORM;
 using Brumak_Shared.Metrics;
+using Brumak_Shared.Network.Frames.Account;
 using Microsoft.Extensions.Configuration;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -20,6 +21,8 @@ namespace Brumak_Client.Forms
 
         private readonly int AuthPort = int.Parse(Services.Configuration.GetConnectionString("AuthServerPort")
                 ?? throw Exceptions.New("'AuthServerPort' is not correctly defined on ConnectionStrings."));
+
+        public event Action<AccountFrame>? OnAccountFrameMessage;
 
         #region "Cursor Interop"
         [DllImport("user32.dll")]
@@ -79,6 +82,31 @@ namespace Brumak_Client.Forms
             InitializeComponent();
             Instance = this;
             LoadCustomCursor();
+
+            OnAccountFrameMessage += accountFrame =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    switch (accountFrame)
+                    {
+                        case AccountErrorFrame accountErrorFrame:
+                            CAAccountCreationResultTb.Visibility = Visibility.Visible;
+                            CAAccountCreationResultTb.Text = accountErrorFrame.Message;
+                            LAAccountLoginResult.Visibility = Visibility.Visible;
+                            LAAccountLoginResult.Text = accountErrorFrame.Message;
+                            break;
+
+                        case LoginSuccessFrame loginSuccessFrame:
+                            break;
+
+                        case RegisterSuccessFrame registerSuccessFrame:
+                            CAAccountCreationResultTb.Visibility = Visibility.Visible;
+                            CAAccountCreationResultTb.Text = registerSuccessFrame.Message;
+                            break;
+                    }
+                });
+            };
+
             ClientFrameDispatcher.Initialize();
 
             _ = Task.Run(InitializeAuthNetworkAsync);
@@ -186,7 +214,7 @@ namespace Brumak_Client.Forms
         #region "Helpers"
         private void CloseTermsAndConditionsIfOpened()
         {
-            if (TermsUserControl.Visibility == Visibility.Visible) 
+            if (TermsUserControl.Visibility == Visibility.Visible)
                 TermsUserControl.Visibility = Visibility.Hidden;
         }
         #endregion
@@ -320,24 +348,43 @@ namespace Brumak_Client.Forms
 
         private void CreateAccount_Click(object sender, RoutedEventArgs e)
         {
+            var ip = Ip.Get() ?? throw Exceptions.New("Fatal error Ip should exist.");
             bool canCreateAccount = ValidateCreateAccount();
             if (!canCreateAccount) return;
 
             CloseTermsAndConditionsIfOpened();
 
-            NetworkManager.AuthClientManager.Send(null!);
+            NetworkManager.AuthClientManager.Send(new RegisterFrame()
+            {
+                Username = CAUsername.Text,
+                Password = CAPassword.Password,
+                Nickname = CANickname.Text,
+                Email = CAEmail.Text,
+                Ip = ip
+            });
         }
 
         private void LoginAccount_Click(object sender, RoutedEventArgs e)
         {
+            var ip = Ip.Get() ?? throw Exceptions.New("Fatal error Ip should exist.");
             bool canLoginAccount = ValidateLoginAccount();
             if (!canLoginAccount) return;
 
             CloseTermsAndConditionsIfOpened();
 
-            NetworkManager.AuthClientManager.Send(null!);
+            NetworkManager.AuthClientManager.Send(new LoginFrame()
+            {
+                Username = LAUsername.Text,
+                Password = LAPassword.Password,
+                Ip = ip
+            });
         }
-
+        #endregion
+        #region "Raise Events"
+        public void RaiseAccountFrameMessage(AccountFrame frame)
+        {
+            OnAccountFrameMessage?.Invoke(frame);
+        }
         #endregion
     }
 }

@@ -1,8 +1,10 @@
 ﻿using Brumak_Client.Forms;
 using Brumak_Client.Network.Frames;
+using Brumak_Client.Network.Frames.Account;
 using Brumak_Shared.Metrics;
 using Brumak_Shared.Network;
 using Brumak_Shared.Network.Frames;
+using Brumak_Shared.Network.Frames.Account;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +16,7 @@ namespace Brumak_Client.Network
     public static class ClientFrameDispatcher
     {
         private static readonly Logger _logger = new("Client", typeof(ClientFrameDispatcher), App.ShowLogs, App.SaveLogs);
-        public static readonly Dictionary<string, IFrameHandler<INetworkFrame>> Handlers = [];
+        public static readonly Dictionary<Type, IFrameHandler<INetworkFrame>> Handlers = [];
 
         private class Wrapper<T>(IFrameHandler<T> inner) : IFrameHandler<INetworkFrame> where T : INetworkFrame
         {
@@ -25,20 +27,30 @@ namespace Brumak_Client.Network
 
         public static void Register<T>(IFrameHandler<T> handler) where T : INetworkFrame
         {
-            Handlers[Activator.CreateInstance<T>().Type] = new Wrapper<T>(handler);
+            Handlers[typeof(T)] = new Wrapper<T>(handler);
         }
 
         public static void Dispatch(TcpClientProvider client, INetworkFrame frame)
         {
-            if (Handlers.TryGetValue(frame.Type, out var handler))
-                handler.Handle(client, frame);
-            else
-                _logger.Log($"Handler not found for frame type {frame.Type}");
+            var type = frame.GetType();
+
+            while (type != null)
+            {
+                if (Handlers.TryGetValue(type, out var handler))
+                {
+                    handler.Handle(client, frame);
+                    return;
+                }
+                type = type.BaseType;
+            }
+
+            _logger.Log($"Handler not found for frame type {frame.GetType().Name}");
         }
 
         public static void Initialize()
         {
             Register<HeartbeatFrame>(new HeartbeatFrameHandler());
+            Register<AccountFrame>(new AccountFrameHandler());
         }
     }
 }

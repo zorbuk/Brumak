@@ -9,5 +9,6 @@ namespace Brumak_Shared.Network
     public static class FrameType
     {
         public const string Heartbeat = "Heartbeat";
+        public const string Account = "Account";
     }
 }
