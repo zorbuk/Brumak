@@ -6,7 +6,7 @@ namespace Brumak_Client.Network.Frames.Servers
 {
     public class ServersFrameHandler : IFrameHandler<ServersFrame>
     {
-        public void Handle(object context, ServersFrame frame)
+        public async Task Handle(object context, ServersFrame frame)
         {
             ServerSelection.Instance?.RaiseServersFrameMessage(frame);
         }

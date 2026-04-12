@@ -42,6 +42,14 @@ namespace Brumak_Auth.Network
             }
         }
 
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _loginLocks = new();
+
+        public static SemaphoreSlim GetLoginLock(string username) 
+            => _loginLocks.GetOrAdd(username.ToLower(), _ => new SemaphoreSlim(1, 1));
+
+        public static void CleanLoginLock(string username)
+            => _loginLocks.TryRemove(username.ToLower(), out _);
+
         public Action<Exception> OnError { get; private set; } = ex =>
         {
             _logger.Log("Error on accepting connection " + ex.Message);

@@ -8,6 +8,6 @@ namespace Brumak_Shared.Network.Frames
 {
     public interface IFrameHandler<T> where T : INetworkFrame
     {
-        void Handle(object context, T frame);
+        Task Handle(object context, T frame);
     }
 }

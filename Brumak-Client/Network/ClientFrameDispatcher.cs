@@ -23,8 +23,8 @@ namespace Brumak_Client.Network
         private class Wrapper<T>(IFrameHandler<T> inner) : IFrameHandler<INetworkFrame> where T : INetworkFrame
         {
             private readonly IFrameHandler<T> Inner = inner;
-            public void Handle(object context, INetworkFrame frame)
-                => Inner.Handle(context, (T)frame);
+            public async Task Handle(object context, INetworkFrame frame)
+                => await Inner.Handle(context, (T)frame);
         }
 
         public static void Register<T>(IFrameHandler<T> handler) where T : INetworkFrame

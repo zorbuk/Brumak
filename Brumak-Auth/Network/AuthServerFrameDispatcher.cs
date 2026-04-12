@@ -43,8 +43,8 @@ namespace Brumak_Auth.Network
 
         private class Wrapper<T>(IFrameHandler<T> inner) : IFrameHandler<INetworkFrame> where T : INetworkFrame
         {
-            public void Handle(object context, INetworkFrame frame)
-                => inner.Handle(context, (T)frame);
+            public async Task Handle(object context, INetworkFrame frame)
+                => await inner.Handle(context, (T)frame);
         }
     }
 }

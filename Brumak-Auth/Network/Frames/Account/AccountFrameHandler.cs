@@ -8,7 +8,7 @@ namespace Brumak_Auth.Network.Frames.Account
 {
     public class AccountFrameHandler : IFrameHandler<AccountFrame>
     {
-        public async void Handle(object context, AccountFrame frame)
+        public async Task Handle(object context, AccountFrame frame)
         {
             var session = (AuthClientSession)context;
             var accountController = Controllers.GetAccountController
@@ -19,16 +19,29 @@ namespace Brumak_Auth.Network.Frames.Account
                 case LoginFrame login:
                     if (accountController.ValidatePassword(login.Username, login.Password))
                     {
-                        var account = accountController.GetByUsername(login.Username) ?? throw Exceptions.New("Fatal error Account should exist.");
-                        if (AuthTcpServerProvider.activeAccounts.ContainsKey(account.Id))
+                        var account = accountController.GetByUsername(login.Username)
+                            ?? throw Exceptions.New("Fatal error Account should exist.");
+
+                        var loginLock = AuthTcpServerProvider.GetLoginLock(account.Username);
+                        await loginLock.WaitAsync();
+                        try
                         {
-                            session.Send(new AccountErrorFrame() { Message = "Esta cuenta ya está conectada." });
-                            break;
+                            if (AuthTcpServerProvider.activeAccounts.ContainsKey(account.Id))
+                            {
+                                session.Send(new AccountErrorFrame() { Message = "Esta cuenta ya está conectada." });
+                                break;
+                            }
+
+                            accountController.UpdateLastIp(account.Id, login.Ip);
+                            session.Username = account.Username;
+                            AuthTcpServerProvider.activeAccounts.TryAdd(account.Id, session);
+                            AuthTcpServerProvider.AddClient(session);
+                            session.Send(new LoginSuccessFrame() { Account = new AccountDto(account) });
                         }
-                        accountController.UpdateLastIp(account.Id, login.Ip);
-                        session.Username = account.Username;
-                        AuthTcpServerProvider.activeAccounts.TryAdd(account.Id, session);
-                        session.Send(new LoginSuccessFrame() { Account = new AccountDto(account) });
+                        finally
+                        {
+                            loginLock.Release();
+                        }
                     }
                     else
                         session.Send(new AccountErrorFrame() { Message = "No se ha podido conectar." });
@@ -51,17 +64,27 @@ namespace Brumak_Auth.Network.Frames.Account
                     break;
 
                 case LogoutFrame logout:
-                    if (!string.IsNullOrEmpty(logout.Username))
+                    if (!string.IsNullOrEmpty(session.Username))
                     {
-                        var account = accountController.GetByUsername(logout.Username);
+                        var account = accountController.GetByUsername(session.Username);
                         if (account != null)
                         {
-                            AuthTcpServerProvider.activeAccounts.TryRemove(account.Id, out _);
-                            AuthTcpServerProvider.RemoveClient(session);
-                            session.Username = null;
-                            session.LastServersHash = null;
-                            session.Disconnect();
+                            var loginLock = AuthTcpServerProvider.GetLoginLock(session.Username);
+                            await loginLock.WaitAsync();
+                            try
+                            {
+                                AuthTcpServerProvider.activeAccounts.TryRemove(account.Id, out _);
+                                AuthTcpServerProvider.RemoveClient(session);
+                                AuthTcpServerProvider.CleanLoginLock(session.Username);
+                                session.Username = null;
+                                session.LastServersHash = null;
+                            }
+                            finally
+                            {
+                                loginLock.Release();
+                            }
                         }
+                        session.Disconnect();
                     }
                     break;
             }

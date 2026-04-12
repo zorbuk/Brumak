@@ -7,7 +7,7 @@ namespace Brumak_Client.Network.Frames
 {
     public class HeartbeatFrameHandler : IFrameHandler<HeartbeatFrame>
     {
-        public void Handle(object context, HeartbeatFrame frame)
+        public async Task Handle(object context, HeartbeatFrame frame)
         {
             if (frame.SentAt == null)
                 throw Exceptions.New("HeartbeatFrame -> SentAt can't be null");
