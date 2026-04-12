@@ -47,11 +47,11 @@ namespace Brumak_ORM.Game.Account.Controller
 
             account.Property(x => x.PremiumExpirationDate)
                 .IsRequired()
-                .HasDefaultValue(DateTime.UtcNow);
+                .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             account.Property(x => x.CreatedAt)
                 .IsRequired()
-                .HasDefaultValue(DateTime.UtcNow);
+                .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
 
             account.HasIndex(x => x.Username)
                 .IsUnique();

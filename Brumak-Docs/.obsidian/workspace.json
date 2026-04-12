@@ -20,8 +20,21 @@
               "icon": "lucide-file",
               "title": "Client"
             }
+          },
+          {
+            "id": "8db0e41ae1c1b2f9",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.12.7"
+              },
+              "icon": "lucide-book-up",
+              "title": "Registro de cambios 1.12.7"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       },
       {
         "id": "a7e6189881d0ff82",
@@ -185,7 +198,7 @@
       "command-palette:Abrir paleta de comandos": false
     }
   },
-  "active": "97afc810f70ed8fa",
+  "active": "8db0e41ae1c1b2f9",
   "lastOpenFiles": [
     "Nuevo Documento de texto.txt",
     "Brumak.md",

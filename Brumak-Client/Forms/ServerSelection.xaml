@@ -1,0 +1,323 @@
+﻿<Window x:Class="Brumak_Client.Forms.ServerSelection"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Brumak - Selección de servidor"
+        Height="600" Width="1000"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        Background="#111"
+        xmlns:Controls ="clr-namespace:Brumak_Client.Forms.Controls"
+        MouseDown="Window_MouseDown">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Forms/Style/MainStyle.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="ServerItem" TargetType="Border">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderBrush" Value="#33FFFFFF"/>
+                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                <Setter Property="Padding" Value="20,14"/>
+                <Setter Property="Cursor" Value="Hand"/>
+            </Style>
+
+            <Style x:Key="ServerItemSelected" TargetType="Border">
+                <Setter Property="Background" Value="#22FFFFFF"/>
+                <Setter Property="BorderBrush" Value="#FFAA44"/>
+                <Setter Property="BorderThickness" Value="3,0,0,0"/>
+                <Setter Property="Padding" Value="17,14"/>
+                <Setter Property="Cursor" Value="Hand"/>
+            </Style>
+
+            <Style x:Key="ServerNameText" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="15"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="FontFamily" Value="Segoe UI"/>
+            </Style>
+
+            <Style x:Key="ServerNameTextSelected" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="15"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Foreground" Value="#FFCC66"/>
+                <Setter Property="FontFamily" Value="Segoe UI"/>
+            </Style>
+
+            <Style x:Key="StatusOnline" TargetType="Ellipse">
+                <Setter Property="Width" Value="8"/>
+                <Setter Property="Height" Value="8"/>
+                <Setter Property="Fill" Value="#44FF88"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+
+            <Style x:Key="StatusOffline" TargetType="Ellipse">
+                <Setter Property="Width" Value="8"/>
+                <Setter Property="Height" Value="8"/>
+                <Setter Property="Fill" Value="#FF3344"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+
+            <Style x:Key="StatusBusy" TargetType="Ellipse">
+                <Setter Property="Width" Value="8"/>
+                <Setter Property="Height" Value="8"/>
+                <Setter Property="Fill" Value="#FFCC00"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+
+            <Style x:Key="TagBadge" TargetType="Border">
+                <Setter Property="Background" Value="#33FFFFFF"/>
+                <Setter Property="CornerRadius" Value="2"/>
+                <Setter Property="Padding" Value="5,2"/>
+                <Setter Property="Margin" Value="6,0,0,0"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+
+            <Style x:Key="ConnectButton" TargetType="Button">
+                <Setter Property="Background" Value="#FFAA44"/>
+                <Setter Property="Foreground" Value="#111"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="FontFamily" Value="Segoe UI"/>
+                <Setter Property="Height" Value="42"/>
+                <Setter Property="Width" Value="200"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="4" Padding="20,0">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#FFBB66"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Background" Value="#FF9922"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="BackButton" TargetType="Button">
+                <Setter Property="Background" Value="#22FFFFFF"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="FontSize" Value="18"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="FontFamily" Value="Segoe UI"/>
+                <Setter Property="Width" Value="36"/>
+                <Setter Property="Height" Value="36"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#44FFFFFF"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid>
+        <Grid Cursor="">
+
+            <Image x:Name="ServerSplashArt"
+                   Stretch="UniformToFill"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Top"/>
+
+            <Rectangle>
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#00000000" Offset="0.2"/>
+                        <GradientStop Color="#CC000000" Offset="0.75"/>
+                        <GradientStop Color="#EE000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+
+            <Rectangle HorizontalAlignment="Left" Width="380">
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#EE000000" Offset="0"/>
+                        <GradientStop Color="#AA000000" Offset="0.6"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+
+            <Border Width="340"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Stretch"
+                    Background="#AA000000">
+                <ScrollViewer VerticalScrollBarVisibility="Hidden" Margin="0,70,0,0">
+                    <StackPanel x:Name="ServerListPanel" Margin="0,10,0,20"/>
+                </ScrollViewer>
+            </Border>
+
+            <StackPanel VerticalAlignment="Bottom"
+                        HorizontalAlignment="Center"
+                        Margin="360,0,40,40"
+                        Width="580">
+
+                <TextBlock x:Name="SelectedServerName"
+                           FontSize="38"
+                           FontWeight="Bold"
+                           FontFamily="Segoe UI"
+                           Foreground="White"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,12">
+                    <TextBlock.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="18" ShadowDepth="2"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+
+                <TextBlock x:Name="SelectedServerDesc"
+                           FontSize="13"
+                           FontFamily="Segoe UI"
+                           Foreground="#CCFFFFFF"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           Margin="0,0,0,16">
+                    <TextBlock.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="10" ShadowDepth="1"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                    <Border Background="#AA000000" CornerRadius="4" Padding="10,5" Margin="0,0,10,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse x:Name="SelectedStatusDot" Width="8" Height="8" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="SelectedStatusText" FontSize="12" Foreground="White" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#AA000000" CornerRadius="4" Padding="10,5">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="SelectedCommunityFlag" FontSize="13" FontFamily="Segoe UI Emoji" Foreground="White" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="SelectedCommunityText" FontSize="12" Foreground="White" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <Button x:Name="ConnectBtn"
+                        Content="Conectar"
+                        Style="{StaticResource ConnectButton}"
+                        HorizontalAlignment="Center"
+                        Click="Connect_Click"/>
+            </StackPanel>
+
+            <Grid VerticalAlignment="Top" Margin="16,12,16,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Content="‹"
+                        Style="{StaticResource BackButton}"
+                        Click="Back_Click"/>
+
+                <TextBlock Grid.Column="1"
+                           Text="{Binding Nickname}"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="White"
+                           FontFamily="Segoe UI"
+                           Margin="10,0,10,0"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"/>
+
+                <TextBlock Grid.Column="1"
+                           Text="{Binding PremiumStatus}"
+                           FontSize="10"
+                           FontWeight="SemiBold"
+                           Foreground="Yellow"
+                           FontFamily="Segoe UI"
+                           Margin="10,0,10,0"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Bottom"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="85,0,0,0">
+                    <Rectangle Width="60" Height="1" Fill="#88FFCC66" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="Selecciona un servidor"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="White"
+                               FontFamily="Segoe UI"
+                               VerticalAlignment="Center"/>
+                    <Rectangle Width="60" Height="1" Fill="#88FFCC66" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Content="—" Style="{StaticResource WindowButton}" Click="Minimize_Click"/>
+                    <Button Content="X" Style="{StaticResource WindowButton}" Click="Close_Click"/>
+                </StackPanel>
+            </Grid>
+            <Button Grid.Column="1"
+    HorizontalAlignment="Right"
+    VerticalAlignment="Bottom"
+    Margin="0,0,14,14"
+    Width="36" Height="36"
+    FontSize="14"
+    Panel.ZIndex="2"
+    Cursor="Hand"
+    Click="AudioBtn_Click"
+    ToolTip="Ajustes de audio">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Background" Value="#161616"/>
+                        <Setter Property="BorderBrush" Value="#2C2C2C"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Setter Property="Foreground" Value="#888888"/>
+                        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bg"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="4">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bg" Property="Background" Value="#D13639"/>
+                                            <Setter TargetName="bg" Property="BorderBrush" Value="#D13639"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Button.Style>
+                <TextBlock Text="🔊" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Button>
+
+            <Controls:AudioMixerControl
+x:Name="AudioMixerPanel"
+Grid.ColumnSpan="2"
+HorizontalAlignment="Center"
+VerticalAlignment="Center"
+Panel.ZIndex="10"/>
+        </Grid>
+    </Grid>
+</Window>

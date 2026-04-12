@@ -1,6 +1,7 @@
 ﻿using Brumak_ORM.Database;
 using Brumak_ORM.Game.Account.Controller;
 using Brumak_ORM.Game.Generic;
+using Brumak_ORM.Game.Server.Controller;
 using Brumak_Shared.Metrics;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
@@ -16,6 +17,10 @@ namespace Brumak_ORM
         public static AccountController? GetAccountController
         {
             get => Get<AccountController>();
+        }
+        public static ServerController? GetServerController
+        {
+            get => Get<ServerController>();
         }
         #endregion
 
@@ -40,6 +45,7 @@ namespace Brumak_ORM
             var definitions = new[]
             {
                 new { ControllerType = typeof(AccountController), ContextType = (Type?)typeof(AuthDbContext) },
+                new { ControllerType = typeof(ServerController), ContextType = (Type?)typeof(AuthDbContext) },
             };
 
             foreach (var def in definitions)

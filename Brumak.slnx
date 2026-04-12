@@ -2,6 +2,7 @@
   <Folder Name="/Elementos de la solución/">
     <File Path="migrations.txt" />
     <File Path="readme.md" />
+    <File Path="vorbis.txt" />
   </Folder>
   <Project Path="Brumak-Auth/Brumak-Auth.csproj" />
   <Project Path="Brumak-Client/Brumak-Client.csproj" />

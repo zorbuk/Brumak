@@ -15,6 +15,7 @@ namespace Brumak_Auth.Network
         public AuthTcpServerProvider Server { get; private set; } = server;
 
         public string? Username { get; set; }
+        public string? LastServersHash { get; set; }
 
         private Stream Stream = null!;
         private StreamReader Reader = null!;
@@ -116,6 +117,13 @@ namespace Brumak_Auth.Network
             if (!Connected) return;
 
             Connected = false;
+
+            if (!string.IsNullOrEmpty(Username))
+            {
+                var account = Controllers.GetAccountController?.GetByUsername(Username);
+                if (account != null)
+                    AuthTcpServerProvider.activeAccounts.TryRemove(account.Id, out _);
+            }
 
             this.Client?.Close();
             Stream?.Close();

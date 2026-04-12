@@ -1,6 +1,7 @@
 ﻿using Brumak_Shared.Metrics;
 using Brumak_Shared.Network.Frames;
 using Brumak_Shared.Network.Frames.Account;
+using Brumak_Shared.Network.Frames.Servers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +44,7 @@ namespace Brumak_Shared.Network
                 {
                     FrameType.Heartbeat => JsonSerializer.Deserialize<HeartbeatFrame>(json, Options),
                     FrameType.Account => JsonSerializer.Deserialize<AccountFrame>(json, Options),
+                    FrameType.Servers => JsonSerializer.Deserialize<ServersFrame>(json, Options),
                     _ => null
                 };
             }

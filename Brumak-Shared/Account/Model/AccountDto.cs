@@ -6,17 +6,25 @@ using System.Threading.Tasks;
 
 namespace Brumak_Shared.Account.Model
 {
-    public class AccountDto(Account account)
+    public class AccountDto
     {
-        public int Id { get; set; } = account.Id;
+        public int Id { get; set; }
+        public string Username { get; set; } = null!;
+        public string Nickname { get; set; } = null!;
+        public DateTime PremiumExpirationDate { get; set; }
+        public string? LastIp { get; set; }
+        public DateTime CreatedAt { get; set; }
 
-        public string Username { get; private set; } = account.Username;
-        public string Nickname { get; private set; } = account.Nickname;
+        public AccountDto() { }
 
-        public DateTime PremiumExpirationDate { get; private set; } = account.PremiumExpirationDate;
-
-        public string? LastIp { get; private set; } = account.LastIp;
-
-        public DateTime CreatedAt { get; private set; } = account.CreatedAt;
+        public AccountDto(Account account)
+        {
+            Id = account.Id;
+            Username = account.Username;
+            Nickname = account.Nickname;
+            PremiumExpirationDate = account.PremiumExpirationDate;
+            LastIp = account.LastIp;
+            CreatedAt = account.CreatedAt;
+        }
     }
 }

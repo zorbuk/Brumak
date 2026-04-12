@@ -1,4 +1,5 @@
-﻿using Brumak_Client.Network;
+﻿using Brumak_Client.Audio;
+using Brumak_Client.Network;
 using Brumak_ORM;
 using Brumak_Shared.Metrics;
 using Brumak_Shared.Network.Frames.Account;
@@ -7,6 +8,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 
 namespace Brumak_Client.Forms
@@ -20,66 +22,25 @@ namespace Brumak_Client.Forms
             ?? throw Exceptions.New("'AuthServerIp' is not correctly defined on ConnectionStrings.");
 
         private readonly int AuthPort = int.Parse(Services.Configuration.GetConnectionString("AuthServerPort")
-                ?? throw Exceptions.New("'AuthServerPort' is not correctly defined on ConnectionStrings."));
+            ?? throw Exceptions.New("'AuthServerPort' is not correctly defined on ConnectionStrings."));
 
         public event Action<AccountFrame>? OnAccountFrameMessage;
 
-        #region "Cursor Interop"
-        [DllImport("user32.dll")]
-        private static extern bool DestroyCursor(IntPtr handle);
-
-        [DllImport("user32.dll")]
-        private static extern IntPtr CreateIconIndirect(ref IconInfo icon);
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct IconInfo
-        {
-            public bool fIcon;
-            public int xHotspot;
-            public int yHotspot;
-            public IntPtr hbmMask;
-            public IntPtr hbmColor;
-        }
-
-        [DllImport("user32.dll")]
-        private static extern bool GetIconInfo(IntPtr hIcon, ref IconInfo pIconInfo);
-
-        [DllImport("gdi32.dll")]
-        private static extern bool DeleteObject(IntPtr handle);
-
-        private class SafeCursorHandle : Microsoft.Win32.SafeHandles.SafeHandleZeroOrMinusOneIsInvalid
-        {
-            public SafeCursorHandle(IntPtr handle) : base(true)
-            {
-                SetHandle(handle);
-            }
-
-            protected override bool ReleaseHandle()
-            {
-                return DestroyCursor(handle);
-            }
-        }
-
-        private static class CursorInteropHelper
-        {
-            public static Cursor Create(System.Runtime.InteropServices.SafeHandle handle)
-            {
-                var cursorType = typeof(Cursor);
-                var constructor = cursorType.GetConstructor(
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                    null,
-                    new[] { typeof(System.Runtime.InteropServices.SafeHandle) },
-                    null
-                );
-
-                return (Cursor)constructor.Invoke(new object[] { handle });
-            }
-        }
-        #endregion
-
+        #region "Constructor"
         public MainWindow()
         {
             InitializeComponent();
+
+            #region "Ui Sounds"
+            AddHandler(ButtonBase.ClickEvent, new RoutedEventHandler((sender, _) =>
+            {
+                if (sender is FrameworkElement el && el.Tag is "silent") return;
+                AudioManager.Instance.UI.Play(@"/Assets/Audio/Ui/Click.ogg");
+            }));
+
+            AudioManager.Instance.BGM.Play(@"/Assets/Audio/Bgm/A Sailor's Dream.ogg", true);
+            #endregion
+
             Instance = this;
             LoadCustomCursor();
 
@@ -97,6 +58,12 @@ namespace Brumak_Client.Forms
                             break;
 
                         case LoginSuccessFrame loginSuccessFrame:
+                            AccountSingleton.Instance.SetAccount(loginSuccessFrame.Account);
+                            Application.Current.MainWindow = ServerSelection.Instance;
+                            if(ServerSelection.Instance == null)
+                                ServerSelection.Instance ??= new();
+                            ServerSelection.Instance.Show();
+                            Hide();
                             break;
 
                         case RegisterSuccessFrame registerSuccessFrame:
@@ -107,11 +74,16 @@ namespace Brumak_Client.Forms
                 });
             };
 
-            ClientFrameDispatcher.Initialize();
+            if (NetworkManager.AuthClientManager == null)
+            {
+                ClientFrameDispatcher.Initialize();
+                _ = Task.Run(InitializeAuthNetworkAsync);
+            }
 
-            _ = Task.Run(InitializeAuthNetworkAsync);
+            ServerSelection.Instance ??= new();
         }
-
+        #endregion
+        #region "Network"
         private async void InitializeAuthNetworkAsync()
         {
             while (true)
@@ -120,21 +92,21 @@ namespace Brumak_Client.Forms
                 {
                     NetworkManager.SetAuth(new TcpClientProvider());
 
-                    using var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-
                     NetworkManager.AuthClientManager.OnPingUpdated += ping =>
                     {
                         Dispatcher.Invoke(() =>
                         {
-                            if (PingLabel != null && StatusEllipse != null)
-                            {
-                                PingLabel.Text = $"{ping} ms";
-                                StatusEllipse.Fill = ping < 100
-                                    ? System.Windows.Media.Brushes.LimeGreen
-                                    : ping < 250 ? System.Windows.Media.Brushes.Orange : System.Windows.Media.Brushes.Red;
-                            }
+                            if (PingLabel == null || StatusEllipse == null) return;
+
+                            PingLabel.Text = $"{ping} ms";
+                            StatusEllipse.Fill = ping < 100
+                                ? System.Windows.Media.Brushes.LimeGreen
+                                : ping < 250
+                                    ? System.Windows.Media.Brushes.Orange
+                                    : System.Windows.Media.Brushes.Red;
                         });
                     };
+
                     NetworkManager.AuthClientManager.OnDisconnected += reconnect =>
                     {
                         Dispatcher.Invoke(() =>
@@ -144,6 +116,7 @@ namespace Brumak_Client.Forms
                                 PingLabel.Text = "En estos momentos el servidor está sin conexión, reconectando (...)";
                                 StatusEllipse.Fill = System.Windows.Media.Brushes.Red;
                             }
+
                             if (reconnect)
                                 InitializeAuthNetworkAsync();
                         });
@@ -152,65 +125,91 @@ namespace Brumak_Client.Forms
                     await NetworkManager.AuthClientManager.ConnectAsync(AuthIp, AuthPort);
                     break;
                 }
-                catch (TimeoutException)
-                {
-
-                }
+                catch (TimeoutException) { }
                 catch (Exception)
                 {
                     await Task.Delay(2000);
                 }
             }
         }
+        #endregion
+        #region "Cursor"
+        #region "Cursor Interop"
+        [DllImport("user32.dll")] private static extern bool DestroyCursor(IntPtr handle);
+        [DllImport("user32.dll")] private static extern IntPtr CreateIconIndirect(ref IconInfo icon);
+        [DllImport("user32.dll")] private static extern bool GetIconInfo(IntPtr hIcon, ref IconInfo pIconInfo);
+        [DllImport("gdi32.dll")] private static extern bool DeleteObject(IntPtr handle);
 
+        [StructLayout(LayoutKind.Sequential)]
+        private struct IconInfo
+        {
+            public bool fIcon;
+            public int xHotspot;
+            public int yHotspot;
+            public IntPtr hbmMask;
+            public IntPtr hbmColor;
+        }
+
+        private class SafeCursorHandle : Microsoft.Win32.SafeHandles.SafeHandleZeroOrMinusOneIsInvalid
+        {
+            public SafeCursorHandle(IntPtr handle) : base(true) => SetHandle(handle);
+            protected override bool ReleaseHandle() => DestroyCursor(handle);
+        }
+
+        private static class CursorInteropHelper
+        {
+            public static Cursor Create(System.Runtime.InteropServices.SafeHandle handle)
+            {
+                var constructor = typeof(Cursor).GetConstructor(
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
+                    null,
+                    [typeof(System.Runtime.InteropServices.SafeHandle)],
+                    null
+                );
+                return (Cursor)constructor!.Invoke([handle]);
+            }
+        }
+        #endregion
         private void LoadCustomCursor()
         {
             try
             {
-                var uri = new Uri("pack://application:,,,/Assets/Ui/Pointer.png");
-                var streamInfo = Application.GetResourceStream(uri);
+                var streamInfo = Application.GetResourceStream(
+                    new Uri("pack://application:,,,/Assets/Ui/Pointer.png"));
 
-                if (streamInfo != null)
-                {
-                    using var stream = streamInfo.Stream;
-                    using Bitmap original = new(stream);
-                    Rectangle cropRect = new(0, 0, 19, 19);
-
-                    using Bitmap croppedBitmap = original.Clone(cropRect, original.PixelFormat);
-                    IntPtr hIcon = croppedBitmap.GetHicon();
-
-                    IconInfo iconInfo = new();
-                    GetIconInfo(hIcon, ref iconInfo);
-
-                    iconInfo.xHotspot = 2;
-                    iconInfo.yHotspot = 2;
-                    iconInfo.fIcon = false;
-
-                    IntPtr cursorHandle = CreateIconIndirect(ref iconInfo);
-
-                    DestroyCursor(hIcon);
-                    DeleteObject(iconInfo.hbmMask);
-                    DeleteObject(iconInfo.hbmColor);
-
-                    var safeCursorHandle = new SafeCursorHandle(cursorHandle);
-                    var cursor = CursorInteropHelper.Create(safeCursorHandle);
-
-                    this.Cursor = cursor;
-                    Mouse.OverrideCursor = cursor;
-
-                    _logger.Log("Cursor loaded.");
-                }
-                else
+                if (streamInfo == null)
                 {
                     _logger.Log("Cursor load failed.");
+                    return;
                 }
+
+                using var stream = streamInfo.Stream;
+                using Bitmap original = new(stream);
+                using Bitmap cropped = original.Clone(new Rectangle(0, 0, 19, 19), original.PixelFormat);
+
+                IntPtr hIcon = cropped.GetHicon();
+                IconInfo info = new();
+                GetIconInfo(hIcon, ref info);
+
+                info.xHotspot = 2;
+                info.yHotspot = 2;
+                info.fIcon = false;
+
+                IntPtr cursorHandle = CreateIconIndirect(ref info);
+                DestroyCursor(hIcon);
+                DeleteObject(info.hbmMask);
+                DeleteObject(info.hbmColor);
+
+                Mouse.OverrideCursor = this.Cursor = CursorInteropHelper.Create(new SafeCursorHandle(cursorHandle));
+
+                _logger.Log("Cursor loaded.");
             }
             catch (Exception ex)
             {
                 _logger.Log($"Error loading cursor: {ex.Message}\nStackTrace: {ex.StackTrace}");
             }
         }
-
+        #endregion
         #region "Helpers"
         private void CloseTermsAndConditionsIfOpened()
         {
@@ -221,11 +220,8 @@ namespace Brumak_Client.Forms
         #region "Validations"
         private static bool IsValidEmail(string email)
         {
-            if (string.IsNullOrWhiteSpace(email))
-                return false;
-
-            string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-            return Regex.IsMatch(email, pattern);
+            if (string.IsNullOrWhiteSpace(email)) return false;
+            return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
         }
 
         private bool ValidateLoginAccount()
@@ -235,26 +231,15 @@ namespace Brumak_Client.Forms
 
             List<string> errors = [];
 
-            string? username = LAUsername.Text?.Trim();
-            string password = LAPassword.Password;
-
-            if (string.IsNullOrWhiteSpace(username))
-            {
+            if (string.IsNullOrWhiteSpace(LAUsername.Text?.Trim()))
                 errors.Add("El usuario o email es obligatorio.");
-            }
             else
-            {
                 LAUsername.ClearValue(BorderBrushProperty);
-            }
 
-            if (string.IsNullOrWhiteSpace(password))
-            {
+            if (string.IsNullOrWhiteSpace(LAPassword.Password))
                 errors.Add("La contraseña es obligatoria.");
-            }
             else
-            {
                 LAPassword.ClearValue(BorderBrushProperty);
-            }
 
             if (errors.Count > 0)
             {
@@ -313,11 +298,16 @@ namespace Brumak_Client.Forms
                 DragMove();
         }
 
+        private void Minimize_Click(object sender, RoutedEventArgs e)
+            => WindowState = WindowState.Minimized;
+
+        private void Close_Click(object sender, RoutedEventArgs e)
+            => Application.Current.Shutdown();
+
         private void ShowLogin(object sender, RoutedEventArgs e)
         {
             LoginPanel.Visibility = Visibility.Visible;
             RegisterPanel.Visibility = Visibility.Collapsed;
-
             BtnLogin.Style = (Style)FindResource("TabActive");
             BtnRegister.Style = (Style)FindResource("TabInactive");
         }
@@ -326,35 +316,21 @@ namespace Brumak_Client.Forms
         {
             LoginPanel.Visibility = Visibility.Collapsed;
             RegisterPanel.Visibility = Visibility.Visible;
-
             BtnLogin.Style = (Style)FindResource("TabInactive");
             BtnRegister.Style = (Style)FindResource("TabActive");
         }
 
         private void ShowTermsAndConditions(object sender, RoutedEventArgs e)
-        {
-            TermsUserControl.Visibility = Visibility.Visible;
-        }
-
-        private void Minimize_Click(object sender, RoutedEventArgs e)
-        {
-            WindowState = WindowState.Minimized;
-        }
-
-        private void Close_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
+            => TermsUserControl.Visibility = Visibility.Visible;
 
         private void CreateAccount_Click(object sender, RoutedEventArgs e)
         {
             var ip = Ip.Get() ?? throw Exceptions.New("Fatal error Ip should exist.");
-            bool canCreateAccount = ValidateCreateAccount();
-            if (!canCreateAccount) return;
+            if (!ValidateCreateAccount()) return;
 
             CloseTermsAndConditionsIfOpened();
 
-            NetworkManager.AuthClientManager.Send(new RegisterFrame()
+            NetworkManager.AuthClientManager.Send(new RegisterFrame
             {
                 Username = CAUsername.Text,
                 Password = CAPassword.Password,
@@ -367,24 +343,29 @@ namespace Brumak_Client.Forms
         private void LoginAccount_Click(object sender, RoutedEventArgs e)
         {
             var ip = Ip.Get() ?? throw Exceptions.New("Fatal error Ip should exist.");
-            bool canLoginAccount = ValidateLoginAccount();
-            if (!canLoginAccount) return;
+            if (!ValidateLoginAccount()) return;
 
             CloseTermsAndConditionsIfOpened();
 
-            NetworkManager.AuthClientManager.Send(new LoginFrame()
+            NetworkManager.AuthClientManager.Send(new LoginFrame
             {
                 Username = LAUsername.Text,
                 Password = LAPassword.Password,
                 Ip = ip
             });
         }
+
+        private void AudioBtn_Click(object sender, RoutedEventArgs e) => AudioMixerPanel.Toggle();
+
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            Application.Current.Shutdown();
+        }
         #endregion
         #region "Raise Events"
         public void RaiseAccountFrameMessage(AccountFrame frame)
-        {
-            OnAccountFrameMessage?.Invoke(frame);
-        }
+            => OnAccountFrameMessage?.Invoke(frame);
         #endregion
     }
 }

@@ -7,6 +7,7 @@
         ResizeMode="NoResize"
         Background="#111"
         xmlns:Legal="clr-namespace:Brumak_Client.Forms.Legal"
+        xmlns:Controls ="clr-namespace:Brumak_Client.Forms.Controls"
         MouseDown="Window_MouseDown">
 
     <Window.Resources>
@@ -184,5 +185,54 @@
                 VerticalAlignment="Center" />
             <Rectangle Fill="#66000000"/>
         </Grid>
+        <Button Grid.Column="1"
+        HorizontalAlignment="Right"
+        VerticalAlignment="Bottom"
+        Margin="0,0,14,14"
+        Width="36" Height="36"
+        FontSize="14"
+        Panel.ZIndex="2"
+        Cursor="Hand"
+        Click="AudioBtn_Click"
+        ToolTip="Ajustes de audio">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Background" Value="#161616"/>
+                    <Setter Property="BorderBrush" Value="#2C2C2C"/>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="Foreground" Value="#888888"/>
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bg"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bg" Property="Background" Value="#D13639"/>
+                                        <Setter TargetName="bg" Property="BorderBrush" Value="#D13639"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Button.Style>
+            <TextBlock Text="🔊" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        </Button>
+
+        <Controls:AudioMixerControl
+    x:Name="AudioMixerPanel"
+    Grid.ColumnSpan="2"
+    HorizontalAlignment="Center"
+    VerticalAlignment="Center"
+    Panel.ZIndex="10"/>
     </Grid>
 </Window>

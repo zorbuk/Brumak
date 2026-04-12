@@ -2,6 +2,7 @@
 using Brumak_ORM;
 using Brumak_ORM.Database;
 using Brumak_ORM.Game.Generic.Cache;
+using Brumak_ORM.Game.Server.Controller;
 using Brumak_Shared.Metrics;
 using Microsoft.Extensions.Configuration;
 
@@ -40,10 +41,13 @@ $$$$$$$  |$$ |      \$$$$$$  |$$ | $$ | $$ |\$$$$$$$ |$$ | \$$\
 
         _logger.Log("Starting CacheFlushService (...)");
         var flushService = new CacheFlushService(interval: TimeSpan.FromSeconds(30));
+        flushService.Register(Controllers.Get<ServerController>());
         flushService.Start();
 
         _logger.Log("Starting AuthServer (...)");
         AuthServer.Start();
+
+        _logger.Log("AuthServer is now Ready (...)");
 
         Console.ReadLine();
     }

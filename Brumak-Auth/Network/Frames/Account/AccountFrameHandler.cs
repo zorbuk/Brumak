@@ -11,7 +11,7 @@ namespace Brumak_Auth.Network.Frames.Account
         public async void Handle(object context, AccountFrame frame)
         {
             var session = (AuthClientSession)context;
-            var accountController = Controllers.GetAccountController 
+            var accountController = Controllers.GetAccountController
                 ?? throw Exceptions.New("Fatal error Controllers doesn't have AccountController.");
 
             switch (frame)
@@ -20,11 +20,18 @@ namespace Brumak_Auth.Network.Frames.Account
                     if (accountController.ValidatePassword(login.Username, login.Password))
                     {
                         var account = accountController.GetByUsername(login.Username) ?? throw Exceptions.New("Fatal error Account should exist.");
+                        if (AuthTcpServerProvider.activeAccounts.ContainsKey(account.Id))
+                        {
+                            session.Send(new AccountErrorFrame() { Message = "Esta cuenta ya está conectada." });
+                            break;
+                        }
                         accountController.UpdateLastIp(account.Id, login.Ip);
+                        session.Username = account.Username;
+                        AuthTcpServerProvider.activeAccounts.TryAdd(account.Id, session);
                         session.Send(new LoginSuccessFrame() { Account = new AccountDto(account) });
                     }
                     else
-                        session.Send(new AccountErrorFrame() { Message = "No se ha podido conectar."});
+                        session.Send(new AccountErrorFrame() { Message = "No se ha podido conectar." });
                     break;
 
                 case RegisterFrame register:
@@ -44,7 +51,18 @@ namespace Brumak_Auth.Network.Frames.Account
                     break;
 
                 case LogoutFrame logout:
-
+                    if (!string.IsNullOrEmpty(logout.Username))
+                    {
+                        var account = accountController.GetByUsername(logout.Username);
+                        if (account != null)
+                        {
+                            AuthTcpServerProvider.activeAccounts.TryRemove(account.Id, out _);
+                            AuthTcpServerProvider.RemoveClient(session);
+                            session.Username = null;
+                            session.LastServersHash = null;
+                            session.Disconnect();
+                        }
+                    }
                     break;
             }
         }
