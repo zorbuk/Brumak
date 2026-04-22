@@ -1,4 +1,5 @@
 ﻿using Brumak_Client.Audio;
+using Brumak_Client.Game;
 using Brumak_Client.Network;
 using Brumak_Shared.Character.Model;
 using Brumak_Shared.Classes.Static;
@@ -368,7 +369,8 @@ namespace Brumak_Client.Forms
 
         private void Play_Click(object sender, RoutedEventArgs e)
         {
-
+            if(_selectedIndex < 0 || _selectedIndex >= _characters.Length) return;
+            CharacterSingleton.Instance.SetCharacter(_characters[_selectedIndex]);
         }
 
         private void CreateCharacter_Click(object sender, RoutedEventArgs e)
