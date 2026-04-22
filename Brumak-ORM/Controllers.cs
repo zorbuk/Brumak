@@ -1,5 +1,6 @@
 ﻿using Brumak_ORM.Database;
 using Brumak_ORM.Game.Account.Controller;
+using Brumak_ORM.Game.Character.Controller;
 using Brumak_ORM.Game.Generic;
 using Brumak_ORM.Game.Server.Controller;
 using Brumak_Shared.Metrics;
@@ -22,6 +23,18 @@ namespace Brumak_ORM
         {
             get => Get<ServerController>();
         }
+        public static CharacterController? GetCharacterController
+        {
+            get => Get<CharacterController>();
+        }
+        public static CharacterExperiencesController? GetCharacterExperiencesController
+        {
+            get => Get<CharacterExperiencesController>();
+        }
+        public static CharacterWorldPositionController? GetCharacterWorldPositionController
+        {
+            get => Get<CharacterWorldPositionController>();
+        }
         #endregion
 
         public static void Register(IGenericController controller)
@@ -38,7 +51,7 @@ namespace Brumak_ORM
             _controllers[typeof(TController)] = controller;
         }
 
-        public static void RegisterAllControllers()
+        public static void RegisterAllControllers(Type type)
         {
             var serviceProvider = Services.ServiceProvider;
 
@@ -46,9 +59,13 @@ namespace Brumak_ORM
             {
                 new { ControllerType = typeof(AccountController), ContextType = (Type?)typeof(AuthDbContext) },
                 new { ControllerType = typeof(ServerController), ContextType = (Type?)typeof(AuthDbContext) },
+                new { ControllerType = typeof(CharacterController), ContextType = (Type?)typeof(WorldDbContext) },
+                new { ControllerType = typeof(CharacterExperiencesController), ContextType = (Type?)typeof(WorldDbContext) },
+                new { ControllerType = typeof(CharacterWorldPositionController), ContextType = (Type?)typeof(WorldDbContext) },
+
             };
 
-            foreach (var def in definitions)
+            foreach (var def in definitions.Where(t => t.ContextType == type))
             {
                 IGenericController controller;
 

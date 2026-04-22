@@ -1,4 +1,5 @@
-﻿using Brumak_Shared.Server.Model;
+﻿using Brumak_Shared.Server.Enum;
+using Brumak_Shared.Server.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

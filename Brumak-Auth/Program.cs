@@ -14,6 +14,9 @@ public class Program
     public static readonly bool SaveLogs = bool.Parse(Services.Configuration.GetConnectionString("SaveLogs")
         ?? throw Exceptions.New("'SaveLogs' is not correctly defined on ConnectionStrings."));
 
+    public static readonly string Secret = Services.Configuration.GetConnectionString("Secret")
+            ?? throw Exceptions.New("'Secret' is not correctly defined.");
+
 
     private static readonly Logger _logger = new("Auth", typeof(Program), ShowLogs, SaveLogs);
 
@@ -37,7 +40,7 @@ $$$$$$$  |$$ |      \$$$$$$  |$$ | $$ | $$ |\$$$$$$$ |$$ | \$$\
         Services.BuildServiceProvider(typeof(AuthDbContext));
 
         _logger.Log("Registering all Controllers (...)");
-        Controllers.RegisterAllControllers();
+        Controllers.RegisterAllControllers(typeof(AuthDbContext));
 
         _logger.Log("Starting CacheFlushService (...)");
         var flushService = new CacheFlushService(interval: TimeSpan.FromSeconds(30));

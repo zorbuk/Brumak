@@ -1,17 +1,14 @@
 ﻿using Brumak_Client.Forms;
 using Brumak_Client.Network.Frames;
 using Brumak_Client.Network.Frames.Account;
+using Brumak_Client.Network.Frames.Character;
 using Brumak_Client.Network.Frames.Servers;
 using Brumak_Shared.Metrics;
 using Brumak_Shared.Network;
 using Brumak_Shared.Network.Frames;
 using Brumak_Shared.Network.Frames.Account;
+using Brumak_Shared.Network.Frames.Characters;
 using Brumak_Shared.Network.Frames.Servers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Brumak_Client.Network
 {
@@ -54,6 +51,7 @@ namespace Brumak_Client.Network
             Register<HeartbeatFrame>(new HeartbeatFrameHandler());
             Register<AccountFrame>(new AccountFrameHandler());
             Register<ServersFrame>(new ServersFrameHandler());
+            Register<CharacterFrame>(new CharacterFrameHandler());
         }
     }
 }

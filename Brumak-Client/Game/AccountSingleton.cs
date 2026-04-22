@@ -10,6 +10,7 @@ public class AccountSingleton : INotifyPropertyChanged
 
     private AccountDto _account;
 
+    public int Id => _account?.Id ?? 0;
     public string Nickname => _account?.Nickname;
     public string PremiumStatus
     {
@@ -48,6 +49,7 @@ public class AccountSingleton : INotifyPropertyChanged
         _account = account;
         OnPropertyChanged(nameof(Nickname));
         OnPropertyChanged(nameof(PremiumStatus));
+        OnPropertyChanged(nameof(Id));
     }
 
     public void Clear()
@@ -56,6 +58,7 @@ public class AccountSingleton : INotifyPropertyChanged
         _account = null!;
         OnPropertyChanged(nameof(Nickname));
         OnPropertyChanged(nameof(PremiumStatus));
+        OnPropertyChanged(nameof(Id));
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

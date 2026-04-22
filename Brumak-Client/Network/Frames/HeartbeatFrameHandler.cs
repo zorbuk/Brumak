@@ -13,7 +13,8 @@ namespace Brumak_Client.Network.Frames
                 throw Exceptions.New("HeartbeatFrame -> SentAt can't be null");
 
             int pingMs = (int)(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - frame.SentAt);
-            NetworkManager.AuthClientManager.RaisePingUpdated(pingMs);
+            NetworkManager.AuthClientManager?.RaisePingUpdated(pingMs);
+            NetworkManager.WorldClientManager?.RaisePingUpdated(pingMs);
         }
     }
 }

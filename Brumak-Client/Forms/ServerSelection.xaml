@@ -169,7 +169,8 @@
                 </ScrollViewer>
             </Border>
 
-            <StackPanel VerticalAlignment="Bottom"
+            <StackPanel x:Name="SelectedServer"
+                        VerticalAlignment="Bottom"
                         HorizontalAlignment="Center"
                         Margin="360,0,40,40"
                         Width="580">
@@ -230,28 +231,23 @@
 
                 <Button Grid.Column="0"
                         Content="‹"
-                        Style="{StaticResource BackButton}"
+                        Style="{StaticResource WindowButton}"
                         Click="Back_Click"/>
 
-                <TextBlock Grid.Column="1"
-                           Text="{Binding Nickname}"
-                           FontSize="16"
-                           FontWeight="SemiBold"
-                           Foreground="White"
-                           FontFamily="Segoe UI"
-                           Margin="10,0,10,0"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Center"/>
-
-                <TextBlock Grid.Column="1"
-                           Text="{Binding PremiumStatus}"
-                           FontSize="10"
-                           FontWeight="SemiBold"
-                           Foreground="Yellow"
-                           FontFamily="Segoe UI"
-                           Margin="10,0,10,0"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Bottom"/>
+                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                    <TextBlock x:Name="NicknameLabel"
+                               Text="{Binding Nickname}"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               Foreground="White"
+                               FontFamily="Segoe UI"/>
+                    <TextBlock x:Name="PremiumLabel"
+                               Text="{Binding PremiumStatus}"
+                               FontSize="10"
+                               Foreground="#FFAA44"
+                               FontFamily="Segoe UI"
+                               FontWeight="SemiBold"/>
+                </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="85,0,0,0">
                     <Rectangle Width="60" Height="1" Fill="#88FFCC66" VerticalAlignment="Center" Margin="0,0,10,0"/>

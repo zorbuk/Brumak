@@ -1,24 +1,22 @@
-﻿using Brumak_Auth.Network.Frames;
-using Brumak_Auth.Network.Frames.Account;
-using Brumak_Auth.Network.Frames.Servers;
-using Brumak_Shared.Metrics;
+﻿using Brumak_Shared.Metrics;
 using Brumak_Shared.Network;
 using Brumak_Shared.Network.Frames;
 using Brumak_Shared.Network.Frames.Account;
-using Brumak_Shared.Network.Frames.Servers;
+using Brumak_Shared.Network.Frames.Characters;
+using Brumak_World.Network.Frames;
+using Brumak_World.Network.Frames.Characters;
 
-namespace Brumak_Auth.Network
+namespace Brumak_World.Network
 {
-    public static class AuthServerFrameDispatcher
+    public static class WorldServerFrameDispatcher
     {
-        private static readonly Logger _logger = new("Auth", typeof(AuthServerFrameDispatcher), Program.ShowLogs, Program.SaveLogs);
+        private static readonly Logger _logger = new("World", typeof(WorldServerFrameDispatcher), Program.ShowLogs, Program.SaveLogs);
         public static readonly Dictionary<Type, IFrameHandler<INetworkFrame>> handlers = [];
 
-        static AuthServerFrameDispatcher()
+        static WorldServerFrameDispatcher()
         {
             Register<HeartbeatFrame>(new HeartbeatFrameHandler());
-            Register<AccountFrame>(new AccountFrameHandler());
-            Register<ServerStatusFrame>(new ServerStatusFrameHandler());
+            Register<CharacterFrame>(new CharacterFrameHandler());
         }
 
         public static void Register<T>(IFrameHandler<T> handler) where T : INetworkFrame
@@ -27,7 +25,7 @@ namespace Brumak_Auth.Network
         }
 
 
-        public static void Dispatch(AuthClientSession client, INetworkFrame frame)
+        public static void Dispatch(WorldClientSession client, INetworkFrame frame)
         {
             var type = frame.GetType();
 

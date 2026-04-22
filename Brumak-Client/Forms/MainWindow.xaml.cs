@@ -62,6 +62,7 @@ namespace Brumak_Client.Forms
                             Application.Current.MainWindow = ServerSelection.Instance;
                             if(ServerSelection.Instance == null)
                                 ServerSelection.Instance ??= new();
+                            ServerSelection.Instance.AskServersFrame();
                             ServerSelection.Instance.Show();
                             Hide();
                             break;
@@ -84,7 +85,7 @@ namespace Brumak_Client.Forms
         }
         #endregion
         #region "Network"
-        private async void InitializeAuthNetworkAsync()
+        public async void InitializeAuthNetworkAsync()
         {
             while (true)
             {

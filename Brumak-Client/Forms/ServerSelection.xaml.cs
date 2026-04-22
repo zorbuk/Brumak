@@ -1,7 +1,7 @@
 ﻿using Brumak_Client.Audio;
 using Brumak_Client.Network;
-using Brumak_Shared.Network.Frames.Account;
 using Brumak_Shared.Network.Frames.Servers;
+using Brumak_Shared.Server.Enum;
 using Brumak_Shared.Server.Model;
 using System.Diagnostics;
 using System.Net.Sockets;
@@ -56,6 +56,7 @@ namespace Brumak_Client.Forms
 
                     _servers = [.. serversFrame.Servers.Select(s => new ServerInfo
                     {
+                        Id            = s.Id,
                         Name          = s.Name,
                         Description   = s.Description,
                         Community     = s.Community,
@@ -85,7 +86,11 @@ namespace Brumak_Client.Forms
 
                 _ = MeasurePingsAsync();
             };
-
+        }
+        #endregion
+        #region "Ask Frames"
+        public void AskServersFrame()
+        {
             NetworkManager.AuthClientManager.Send(new ServersFrame());
         }
         #endregion
@@ -234,6 +239,8 @@ namespace Brumak_Client.Forms
                 _serverBorders.Add(border);
                 ServerListPanel.Children.Add(border);
             }
+
+            SelectedServer.Visibility = Visibility.Visible;
         }
 
         private void SelectServer(int index)
@@ -327,12 +334,21 @@ namespace Brumak_Client.Forms
             Close();
         }
 
-        private void Connect_Click(object sender, RoutedEventArgs e)
+        private async void Connect_Click(object sender, RoutedEventArgs e)
         {
             if (_servers == null || _servers.Length <= 0)
                 return;
             var server = _servers[_selectedIndex];
             if (server.Status == ServerStatus.Offline) return;
+
+            await NetworkManager.TransitionToWorld(server.Ip, server.Port);
+
+            Application.Current.MainWindow = CharacterSelection.Instance;
+            if (CharacterSelection.Instance == null)
+                CharacterSelection.Instance ??= new(server);
+            CharacterSelection.Instance.AskCharactersFrame();
+            CharacterSelection.Instance.Show();
+            Hide();
         }
 
         private void AudioBtn_Click(object sender, RoutedEventArgs e) => AudioMixerPanel.Toggle();

@@ -1,23 +1,20 @@
-﻿using Brumak_Auth.Network.Frames.Servers;
-using Brumak_ORM;
+﻿using Brumak_ORM;
 using Brumak_Shared.Metrics;
 using Brumak_Shared.Network;
+using Brumak_Shared.Network.Frames.Servers;
 using Brumak_Shared.Server.Enum;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Text;
 
-namespace Brumak_Auth.Network
+namespace Brumak_World.Network
 {
-    public class AuthClientSession(TcpClient client, AuthTcpServerProvider server)
+    public class WorldClientSession(TcpClient client, WorldTcpServerProvider server)
     {
-        private Logger _logger = new("Auth", typeof(AuthClientSession), Program.ShowLogs, Program.SaveLogs);
+        private Logger _logger = new("World", typeof(WorldClientSession), Program.ShowLogs, Program.SaveLogs);
 
         public TcpClient Client { get; private set; } = client;
-        public AuthTcpServerProvider Server { get; private set; } = server;
-
-        public bool IsWorldServer { get; set; } = false;
-        public int? WorldServerId { get; set; }
+        public WorldTcpServerProvider Server { get; private set; } = server;
 
         public string? Username { get; set; }
         public string? LastServersHash { get; set; }
@@ -39,7 +36,7 @@ namespace Brumak_Auth.Network
             //    false
             //);
 
-            //ssl.AuthenticateAsServer(
+            //ssl.WorldenticateAsServer(
             //    CertificateManager.GetCertificate(),
             //    clientCertificateRequired: false,
             //    SslProtocols.Tls13,
@@ -87,7 +84,7 @@ namespace Brumak_Auth.Network
 
                 if (ReceiveQueue.TryDequeue(out var frame))
                 {
-                    AuthServerFrameDispatcher.Dispatch(this, frame);
+                    WorldServerFrameDispatcher.Dispatch(this, frame);
                 }
             }
         }
@@ -117,7 +114,7 @@ namespace Brumak_Auth.Network
             }
         }
 
-        public async Task Disconnect(string reason = "Connection finished")
+        public void Disconnect(string reason = "Connection finished")
         {
             if (!Connected) return;
 
@@ -127,7 +124,7 @@ namespace Brumak_Auth.Network
             {
                 var account = Controllers.GetAccountController?.GetByUsername(Username);
                 if (account != null)
-                    AuthTcpServerProvider.activeAccounts.TryRemove(account.Id, out _);
+                    WorldTcpServerProvider.activeAccounts.TryRemove(account.Id, out _);
             }
 
             this.Client?.Close();
@@ -135,24 +132,7 @@ namespace Brumak_Auth.Network
             Reader?.Close();
             Writer?.Close();
 
-            if (IsWorldServer && WorldServerId.HasValue)
-            {
-                var serverController = Controllers.GetServerController;
-                var server = serverController?.GetAllCached()
-                    .FirstOrDefault(s => s.Id == WorldServerId.Value);
-
-                if (server != null && server.Status != ServerStatus.Offline)
-                {
-                    server.Status = ServerStatus.Offline;
-                    server.UpdatedAt = DateTime.UtcNow;
-                    serverController!.Save();
-                    await serverController.FlushAsync();
-
-                    ServerStatusFrameHandler.BroadcastServers();
-                }
-            }
-
-            AuthTcpServerProvider.RemoveClient(this);
+            WorldTcpServerProvider.RemoveClient(this);
         }
     }
 }
